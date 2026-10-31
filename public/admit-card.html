@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temporary Admit Card | University Examination Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @media print {
+      body {
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-border {
+        border: 2px solid #1e293b !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen py-8 px-4 flex flex-col items-center justify-center">
+
+  <!-- Print Control Bar (Hidden on print) -->
+  <div class="no-print w-full max-w-3xl mb-6 flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+    <div class="flex items-center space-x-2 text-slate-700 text-sm font-semibold">
+      <i data-lucide="shield-check" class="w-5 h-5 text-emerald-600"></i>
+      <span>Auto-Generated Temporary Admit Card (Approved)</span>
+    </div>
+    <div class="flex items-center space-x-3">
+      <button onclick="window.close()" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
+        Close
+      </button>
+      <button onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center space-x-1.5">
+        <i data-lucide="printer" class="w-4 h-4"></i>
+        <span>Print Temporary Admit Card</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Official Admit Card Certificate Layout -->
+  <div id="admitCardContent" class="admit-card-container w-full max-w-3xl bg-white border-2 border-slate-900 rounded-2xl p-8 shadow-xl relative overflow-hidden">
+    
+    <!-- Watermark Background -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] select-none">
+      <span class="text-8xl font-black text-slate-900 rotate-[-30deg]">TEMPORARY ADMIT</span>
+    </div>
+
+    <!-- University Header -->
+    <div class="border-b-2 border-slate-900 pb-5 mb-6 text-center">
+      <div class="flex items-center justify-center space-x-3 mb-2">
+        <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xl">
+          🎓
+        </div>
+        <div>
+          <h1 class="text-2xl font-black tracking-wider text-slate-900 uppercase">NORTHERN UNIVERSITY BANGLADESH</h1>
+          <p class="text-xs font-semibold text-slate-600 tracking-wider uppercase">Department of Computer Science and Engineering (CSE)</p>
+        </div>
+      </div>
+      <div class="inline-block bg-slate-900 text-white text-xs font-black tracking-widest px-4 py-1 rounded-md uppercase mt-1">
+        TEMPORARY ADMIT CARD • MIDTERM EXAMINATION, FALL-2026
+      </div>
+    </div>
+
+    <!-- Notice of Clearance -->
+    <div class="mb-6 p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs flex items-center justify-between">
+      <div>
+        <span class="text-slate-500">Exam Term:</span>
+        <strong id="cardExamTerm" class="text-slate-900 ml-1 text-sm">Mid Term Fall 2026</strong>
+      </div>
+      <div>
+        <span class="text-slate-500">Authorization Token:</span>
+        <code id="cardTokenSnippet" class="font-mono font-bold text-slate-800 ml-1">...</code>
+      </div>
+      <div>
+        <span class="text-slate-500">Generated:</span>
+        <span id="cardGenDate" class="text-slate-800 font-medium ml-1">Today</span>
+      </div>
+    </div>
+
+    <!-- Student and Course Details Grid -->
+    <div class="grid grid-cols-3 gap-6 mb-6">
+      
+      <!-- Student Info (2 Columns) -->
+      <div class="col-span-2 space-y-3">
+        <div class="grid grid-cols-2 gap-y-2.5 text-xs">
+          <div>
+            <span class="text-slate-400 block font-semibold uppercase text-[10px]">Student Full Name</span>
+            <span id="cardStudentName" class="text-sm font-bold text-slate-900">Rakib Hasan</span>
+          </div>
+
+          <div>
+            <span class="text-slate-400 block font-semibold uppercase text-[10px]">Student ID Number</span>
+            <span id="cardStudentId" class="text-sm font-mono font-bold text-slate-900">2022-1-60-001</span>
+          </div>
+
+          <div>
+            <span class="text-slate-400 block font-semibold uppercase text-[10px]">Section / Batch</span>
+            <span id="cardSection" class="text-sm font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">Section 10/A</span>
+          </div>
+
+          <div>
+            <span class="text-slate-400 block font-semibold uppercase text-[10px]">Registered Gmail Address</span>
+            <span id="cardEmail" class="text-xs font-mono text-slate-700">student.rakib@gmail.com</span>
+          </div>
+        </div>
+
+        <!-- Approved Course Schedule Table -->
+        <div class="mt-4 border border-slate-300 rounded-xl overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 border-b border-slate-300 font-bold text-slate-800">
+              <tr>
+                <th class="py-2 px-3">SL</th>
+                <th class="py-2 px-3">Course Code</th>
+                <th class="py-2 px-3">Course Title</th>
+                <th class="py-2 px-3">Exam Date & Time Slot</th>
+                <th class="py-2 px-3 text-center">Invigilator Sign</th>
+              </tr>
+            </thead>
+            <tbody id="cardCoursesTableBody" class="divide-y divide-slate-200">
+              <tr>
+                <td colspan="5" class="py-3 px-3 text-center text-slate-400">Loading approved courses...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-[11px] text-emerald-900 flex items-start space-x-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+          <div>
+            <span class="font-bold">Financial Clearance Verified:</span>
+            <span>Current due of <strong id="cardDues">৳ 0</strong> reviewed and approved by the Permission Granting Committee.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Verification QR Code -->
+      <div class="col-span-1 flex flex-col items-center justify-center p-4 bg-slate-50 border border-slate-200 rounded-xl text-center">
+        <img id="cardQrImage" src="" alt="Admit Card QR Verification" class="w-36 h-36 border border-slate-300 rounded-lg p-1 bg-white mb-2 shadow-sm">
+        <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Exam Hall Verification</span>
+        <span class="text-[9px] text-slate-500 mt-0.5">Invigilators must scan to verify authenticity</span>
+      </div>
+
+    </div>
+
+    <!-- Rules & Examination Instructions -->
+    <div class="border-t border-slate-200 pt-4 mb-8 text-[11px] text-slate-600 space-y-1">
+      <div class="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Examination Hall Instructions:</div>
+      <p>1. This temporary admit card is valid exclusively for the student, course, and exam slot indicated above.</p>
+      <p>2. Students must bring their official University Student Photo ID Card along with this printed admit card.</p>
+      <p>3. Possession of mobile phones or unauthorized materials in the exam hall will result in disciplinary action.</p>
+    </div>
+
+    <!-- Official Signatures Row (Official NUB Authorities) -->
+    <div class="grid grid-cols-3 gap-6 pt-6 border-t-2 border-slate-900 text-center text-xs">
+      <div>
+        <div class="h-10 flex items-end justify-center font-serif italic text-slate-800 text-xs font-bold">Md. Ashik Azad Khan Anik</div>
+        <div class="border-t border-slate-400 pt-1 font-semibold text-slate-700">Senior Lecturer & Asst. Coordinator, CSE</div>
+      </div>
+      <div>
+        <div class="h-10 flex items-end justify-center font-serif italic text-emerald-800 text-xs font-bold">Muhammed Samsuddoha Alam</div>
+        <div class="border-t border-slate-400 pt-1 font-semibold text-slate-700">Associate Professor & Coordinator, CSE</div>
+      </div>
+      <div>
+        <div class="h-10 flex items-end justify-center font-serif italic text-slate-900 text-xs font-bold">Md. Raihan-ul-Masood</div>
+        <div class="border-t border-slate-400 pt-1 font-semibold text-slate-700">Associate Professor & Head, CSE</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    lucide.createIcons();
+
+    async function loadAdmitCard() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const requestId = urlParams.get('requestId');
+
+      if (!requestId) {
+        alert('Missing requestId in URL.');
+        window.location.href = '/student.html';
+        return;
+      }
+
+      try {
+        const res = await apiFetch(`/api/student/requests/${requestId}/admit-card`);
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Admit card not available');
+          window.location.href = '/student.html';
+          return;
+        }
+
+        const card = data.admitCard;
+
+        document.getElementById('cardExamTerm').textContent = card.examTerm;
+        document.getElementById('cardTokenSnippet').textContent = card.token.slice(0, 13) + '...';
+        document.getElementById('cardGenDate').textContent = new Date().toLocaleDateString();
+
+        document.getElementById('cardStudentName').textContent = card.studentName;
+        document.getElementById('cardStudentId').textContent = card.studentId;
+        document.getElementById('cardSection').textContent = `Section ${card.sectionCode}`;
+        document.getElementById('cardEmail').textContent = card.studentEmail;
+
+        // Render all approved courses in the admit card table
+        const tbody = document.getElementById('cardCoursesTableBody');
+        const courses = card.courses && card.courses.length > 0 ? card.courses : [{
+          code: card.courseCode,
+          title: card.courseTitle,
+          exam_date: card.examDate,
+          exam_time: card.examTime
+        }];
+
+        tbody.innerHTML = courses.map((c, idx) => `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2 px-3 font-mono font-bold text-slate-500">${idx + 1}</td>
+            <td class="py-2 px-3 font-mono font-bold text-slate-900">${c.code}</td>
+            <td class="py-2 px-3 font-semibold text-slate-800">${c.title}</td>
+            <td class="py-2 px-3 text-slate-800 font-medium">${c.exam_date} (${c.exam_time})</td>
+            <td class="py-2 px-3 text-center border-l border-slate-200">
+              <span class="inline-block w-20 border-b border-dotted border-slate-400 mt-3"></span>
+            </td>
+          </tr>
+        `).join('');
+
+        document.getElementById('cardDues').textContent = `৳ ${Number(card.currentDueDeclared).toLocaleString()}`;
+        document.getElementById('cardQrImage').src = card.qrCodeImage;
+
+      } catch (err) {
+        alert('Failed to load admit card.');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAdmitCard);
+  </script>
+</body>
+</html>

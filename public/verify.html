@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admit Card Verification | University Proctors</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-100 min-h-screen py-8 px-4 flex flex-col items-center justify-center">
+
+  <div class="w-full max-w-lg bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8">
+    
+    <div class="text-center mb-6">
+      <div class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Northern University Bangladesh</div>
+      <div class="text-[11px] text-blue-600 font-semibold mb-3">Department of Computer Science & Engineering (CSE)</div>
+      <div id="statusIcon" class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center mx-auto mb-3 shadow-inner">
+        <i data-lucide="loader" class="w-8 h-8 animate-spin"></i>
+      </div>
+      <h1 id="statusTitle" class="text-xl font-black text-slate-900">Verifying Admit Card...</h1>
+      <p id="statusSubtitle" class="text-xs text-slate-500 mt-1">Midterm Examination, Fall-2026</p>
+    </div>
+
+    <!-- Verified Information Container -->
+    <div id="verifiedCard" class="hidden space-y-4">
+      <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
+        <div class="flex items-center space-x-2 text-emerald-800 font-bold text-sm mb-3">
+          <i data-lucide="badge-check" class="w-5 h-5 text-emerald-600"></i>
+          <span>Official Temporary Admit Card: VALID & APPROVED</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-y-2 text-xs">
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Student Name</span>
+            <span id="vStudentName" class="font-bold text-slate-900">...</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Student ID</span>
+            <span id="vStudentId" class="font-mono font-bold text-slate-900">...</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Section / Batch</span>
+            <span id="vSection" class="font-bold text-indigo-700">10/A</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Exam Term</span>
+            <span id="vExamTerm" class="font-bold text-slate-900">Mid Term Fall 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs space-y-2">
+        <div class="font-bold text-slate-800 mb-1 text-xs">Approved Examination Courses:</div>
+        <div id="vCoursesList" class="space-y-2 divide-y divide-slate-200"></div>
+        <div class="flex items-center justify-between border-t border-slate-200 pt-2.5 text-xs">
+          <span class="text-slate-500">Approved By:</span>
+          <span id="vApprovedBy" class="font-semibold text-emerald-700">...</span>
+        </div>
+      </div>
+
+      <div class="text-center text-[11px] text-slate-400">
+        Invigilator Clearance Timestamp: <span id="vTimestamp"></span>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorCard" class="hidden p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 space-y-2 text-center">
+      <div class="font-bold text-sm">INVALID OR EXPIRED ADMIT CARD</div>
+      <p id="errorReason">This QR token does not match any approved examination permission.</p>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+      <a href="/index.html" class="text-xs font-bold text-blue-600 hover:underline">
+        &larr; Return to University ERP Portal
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    async function verifyToken() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+
+      const iconBox = document.getElementById('statusIcon');
+      const title = document.getElementById('statusTitle');
+      const subtitle = document.getElementById('statusSubtitle');
+      const verifiedCard = document.getElementById('verifiedCard');
+      const errorCard = document.getElementById('errorCard');
+
+      if (!token) {
+        iconBox.className = "w-16 h-16 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-3";
+        iconBox.innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8"></i>';
+        title.textContent = "Token Missing";
+        subtitle.textContent = "Scan the QR code printed on the admit card.";
+        lucide.createIcons();
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/superadmin/public/verify/${token}`);
+        const data = await res.json();
+
+        if (res.ok && data.valid) {
+          iconBox.className = "w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-500/20";
+          iconBox.innerHTML = '<i data-lucide="check" class="w-8 h-8"></i>';
+          title.textContent = "Authentic Admit Card";
+          subtitle.textContent = "Cleared for entry into Examination Hall";
+
+          const card = data.admitCard;
+          document.getElementById('vStudentName').textContent = card.studentName;
+          document.getElementById('vStudentId').textContent = card.studentId;
+          document.getElementById('vSection').textContent = `Section ${card.section}`;
+          document.getElementById('vExamTerm').textContent = card.examTerm;
+
+          const courses = card.courses && card.courses.length > 0 ? card.courses : [{
+            code: card.courseCode,
+            title: card.courseTitle,
+            exam_date: card.examDate,
+            exam_time: card.examTime
+          }];
+
+          document.getElementById('vCoursesList').innerHTML = courses.map(c => `
+            <div class="pt-2 first:pt-0">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-900">${c.code}</span>
+                <span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold">${c.exam_date}</span>
+              </div>
+              <div class="text-[11px] text-slate-700">${c.title}</div>
+              <div class="text-[10px] text-slate-500">Slot: ${c.exam_time}</div>
+            </div>
+          `).join('');
+
+          document.getElementById('vApprovedBy').textContent = card.approvedBy || 'Permission Granting Committee';
+          document.getElementById('vTimestamp').textContent = new Date().toLocaleString();
+
+          verifiedCard.classList.remove('hidden');
+        } else {
+          iconBox.className = "w-16 h-16 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-3";
+          iconBox.innerHTML = '<i data-lucide="x" class="w-8 h-8"></i>';
+          title.textContent = "Verification Failed";
+          subtitle.textContent = "Disallowed entry";
+          document.getElementById('errorReason').textContent = data.message || "Invalid or revoked admit card token.";
+          errorCard.classList.remove('hidden');
+        }
+      } catch (err) {
+        iconBox.className = "w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-3";
+        iconBox.innerHTML = '<i data-lucide="wifi-off" class="w-8 h-8"></i>';
+        title.textContent = "Connection Error";
+        subtitle.textContent = "Unable to reach verification server.";
+      }
+      lucide.createIcons();
+    }
+
+    document.addEventListener('DOMContentLoaded', verifyToken);
+  </script>
+</body>
+</html>

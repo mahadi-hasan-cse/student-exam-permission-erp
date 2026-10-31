@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.log
+erp.db
+erp.db-journal
+erp.db-wal
+erp.db-shm
+.DS_Store
+Thumbs.db

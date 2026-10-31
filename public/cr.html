@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CR Portal | Section 10/A Whitelisting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+  <!-- Top Nav -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-500/20">
+          <i data-lucide="users" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-base font-bold text-slate-900">Class Representative Portal</span>
+            <span id="sectionBadge" class="bg-indigo-100 text-indigo-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
+              Section 10/A
+            </span>
+          </div>
+          <span class="text-xs text-slate-500">10th Semester Section A • Student Whitelisting & Roster</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <div class="text-right hidden sm:block">
+          <div id="crUserName" class="text-sm font-semibold text-slate-800">Loading...</div>
+          <div class="text-xs text-indigo-600 font-medium">Class Representative (Admin)</div>
+        </div>
+        <button onclick="logoutUser()" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg border border-slate-200 transition flex items-center space-x-1">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 py-8 w-full space-y-6">
+
+    <!-- Information Alert -->
+    <div class="bg-gradient-to-r from-indigo-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-white/20 text-white mb-2">
+          <i data-lucide="info" class="w-3.5 h-3.5 mr-1.5"></i> Google Authentication Whitelist Authority
+        </div>
+        <h1 class="text-2xl font-bold">Manage Students of Section 10/A</h1>
+        <p class="text-indigo-100 text-sm mt-1 leading-relaxed">
+          Students can <strong>only</strong> sign in to this ERP if their Gmail address is registered by you. Enter your section's student IDs and their official Gmail addresses below.
+        </p>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Whitelisted Students</div>
+        <div id="statTotalStudents" class="text-2xl font-black text-slate-900 mt-2">0</div>
+        <div class="text-xs text-indigo-600 mt-1">Section 10/A</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Requests</div>
+        <div id="statTotalRequests" class="text-2xl font-black text-slate-900 mt-2">0</div>
+        <div class="text-xs text-slate-400 mt-1">From this section</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Approved Requests</div>
+        <div id="statApprovedRequests" class="text-2xl font-black text-emerald-600 mt-2">0</div>
+        <div class="text-xs text-emerald-600 mt-1">Admit cards active</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Review</div>
+        <div id="statPendingRequests" class="text-2xl font-black text-amber-600 mt-2">0</div>
+        <div class="text-xs text-amber-600 mt-1">With Committee</div>
+      </div>
+    </div>
+
+    <!-- Main Content: Whitelist Form + Students Table -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Left Column: Add Student Form -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-1 h-fit">
+        <div class="flex items-center space-x-2 pb-4 mb-4 border-b border-slate-100">
+          <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Whitelist Student</h2>
+            <p class="text-xs text-slate-500">Authorize student for Google login</p>
+          </div>
+        </div>
+
+        <form id="addStudentForm" onsubmit="handleAddStudent(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Student ID *</label>
+            <input 
+              type="text" 
+              id="studentIdInput" 
+              required 
+              placeholder="e.g. 2022-1-60-004" 
+              class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            >
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Student Full Name *</label>
+            <input 
+              type="text" 
+              id="studentNameInput" 
+              required 
+              placeholder="e.g. Nafis Iqbal" 
+              class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            >
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Student Gmail Address *</label>
+            <input 
+              type="email" 
+              id="studentEmailInput" 
+              required 
+              placeholder="e.g. nafis.iqbal@gmail.com" 
+              class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            >
+            <span class="text-[11px] text-slate-400 mt-1 block">Must be an active @gmail.com account.</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Assigned Section</label>
+            <input 
+              type="text" 
+              id="studentSectionDisplay" 
+              value="10/A" 
+              disabled 
+              class="w-full px-3 py-2 text-sm rounded-xl bg-slate-100 text-slate-600 font-bold border border-slate-200"
+            >
+          </div>
+
+          <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-md shadow-indigo-500/20 transition flex items-center justify-center space-x-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span>Add to Whitelist</span>
+          </button>
+        </form>
+
+        <div class="mt-6 pt-5 border-t border-slate-100">
+          <div class="text-xs font-bold text-slate-800 mb-2">Bulk Quick-Add (CSV Format):</div>
+          <p class="text-[11px] text-slate-500 mb-2">Paste one student per line in format: <br><code>StudentID, FullName, email@gmail.com</code></p>
+          <textarea id="bulkCsvInput" rows="3" placeholder="2022-1-60-005, Ahsan Habib, ahsan.habib@gmail.com" class="w-full p-2 text-xs font-mono border border-slate-300 rounded-xl mb-2"></textarea>
+          <button onclick="handleBulkAdd()" class="w-full py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl transition">
+            Import Bulk Roster
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Whitelisted Students Roster Table -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 flex-wrap gap-2">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Registered Students in Section 10/A</h2>
+            <p class="text-xs text-slate-500">Only these students can access the permission portal</p>
+          </div>
+          <div class="relative">
+            <input 
+              type="text" 
+              id="studentSearch" 
+              oninput="filterStudentTable()" 
+              placeholder="Search ID, Name or Gmail..." 
+              class="pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"></i>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                <th class="py-2.5 px-3">Student ID</th>
+                <th class="py-2.5 px-3">Full Name</th>
+                <th class="py-2.5 px-3">Gmail Address</th>
+                <th class="py-2.5 px-3">Section</th>
+                <th class="py-2.5 px-3">Auth Status</th>
+                <th class="py-2.5 px-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody" class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="6" class="py-6 text-center text-slate-400">Loading student roster...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="/js/app.js"></script>
+  <script>
+    lucide.createIcons();
+    let currentStudents = [];
+
+    async function loadCRData() {
+      const user = getStoredUser();
+      if (!user) {
+        window.location.href = '/index.html';
+        return;
+      }
+      if (user.role !== 'CR_ADMIN' && user.role !== 'SUPER_ADMIN') {
+        alert('Access denied: CR Admin privileges required.');
+        routeUserByRole(user.role);
+        return;
+      }
+
+      document.getElementById('crUserName').textContent = user.name;
+      const section = user.section_code || '10/A';
+      document.getElementById('sectionBadge').textContent = `Section ${section}`;
+      document.getElementById('studentSectionDisplay').value = section;
+
+      try {
+        const res = await apiFetch('/api/cr/dashboard');
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Failed to load data');
+          return;
+        }
+
+        document.getElementById('statTotalStudents').textContent = data.stats.total_students;
+        document.getElementById('statTotalRequests').textContent = data.stats.total_requests;
+        document.getElementById('statApprovedRequests').textContent = data.stats.approved_requests;
+        document.getElementById('statPendingRequests').textContent = data.stats.pending_requests;
+
+        currentStudents = data.students;
+        renderStudentTable(currentStudents);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderStudentTable(students) {
+      const tbody = document.getElementById('studentTableBody');
+      if (students.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">No students whitelisted yet in this section. Add one above!</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = students.map(s => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-3 px-3 font-mono font-bold text-slate-800">${s.student_id}</td>
+          <td class="py-3 px-3 font-semibold text-slate-900">${s.name}</td>
+          <td class="py-3 px-3 text-slate-600 font-mono">${s.email}</td>
+          <td class="py-3 px-3"><span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded text-[11px] font-bold">${s.section_code}</span></td>
+          <td class="py-3 px-3">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1"></span> Whitelisted
+            </span>
+          </td>
+          <td class="py-3 px-3 text-right">
+            <button onclick="handleDeleteStudent(${s.id})" class="text-slate-400 hover:text-red-600 p-1 rounded transition" title="Remove student">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function filterStudentTable() {
+      const query = document.getElementById('studentSearch').value.toLowerCase();
+      const filtered = currentStudents.filter(s => 
+        s.student_id.toLowerCase().includes(query) ||
+        s.name.toLowerCase().includes(query) ||
+        s.email.toLowerCase().includes(query)
+      );
+      renderStudentTable(filtered);
+    }
+
+    async function handleAddStudent(e) {
+      e.preventDefault();
+      const student_id = document.getElementById('studentIdInput').value;
+      const name = document.getElementById('studentNameInput').value;
+      const email = document.getElementById('studentEmailInput').value;
+
+      try {
+        const res = await apiFetch('/api/cr/students', {
+          method: 'POST',
+          body: JSON.stringify({ student_id, name, email })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Failed to add student');
+          return;
+        }
+        alert(data.message);
+        document.getElementById('addStudentForm').reset();
+        loadCRData();
+      } catch (err) {
+        alert('Server error occurred');
+      }
+    }
+
+    async function handleBulkAdd() {
+      const text = document.getElementById('bulkCsvInput').value.trim();
+      if (!text) {
+        alert('Please enter CSV data first.');
+        return;
+      }
+      const lines = text.split('\n');
+      const students = [];
+
+      for (const line of lines) {
+        const parts = line.split(',').map(p => p.trim());
+        if (parts.length >= 3) {
+          students.push({ student_id: parts[0], name: parts[1], email: parts[2] });
+        }
+      }
+
+      if (students.length === 0) {
+        alert('No valid student rows recognized. Format: StudentID, Name, Email');
+        return;
+      }
+
+      try {
+        const res = await apiFetch('/api/cr/students/bulk', {
+          method: 'POST',
+          body: JSON.stringify({ students })
+        });
+        const data = await res.json();
+        alert(data.message);
+        document.getElementById('bulkCsvInput').value = '';
+        loadCRData();
+      } catch (err) {
+        alert('Bulk import failed.');
+      }
+    }
+
+    async function handleDeleteStudent(id) {
+      if (!confirm('Are you sure you want to remove this student from Section 10/A whitelist? They will no longer be able to log in.')) return;
+
+      try {
+        const res = await apiFetch(`/api/cr/students/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Failed to delete');
+          return;
+        }
+        loadCRData();
+      } catch (err) {
+        alert('Server error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCRData);
+  </script>
+</body>
+</html>
